@@ -65,7 +65,12 @@ class Artefacts(Resource):
 @api.route('/artefacts/<string:directory_id>')
 class Artefacts(Resource):
     def get(self, directory_id):
-        return {'GET_artefacts': directory_id}
+        try:
+            # directories = [d for d in os.listdir(app.config['UPLOAD_FOLDER'])]
+            directories = os.listdir(app.config['UPLOAD_FOLDER'] + directory_id)
+            return {'artefacts': directories}, 200  # Devolvemos la lista de directorios
+        except FileNotFoundError:
+            return {'error': 'Upload folder not found'}, 404
 
     def delete(self, directory_id):
         return {'DELETE_artefacts': directory_id}
