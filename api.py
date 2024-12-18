@@ -37,7 +37,7 @@ def upload_file(directory_id, artefact_id):
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             createDirectory(app.config['UPLOAD_FOLDER'] + directory_id)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], directory_id, filename))
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], directory_id, artefact_id))
             return {'message': f'File {artefact_id} uploaded to directory {directory_id}'}, 201
         
     return {'error': 'No file part'}, 400
