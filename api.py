@@ -59,6 +59,18 @@ def delete_directory(directory_id):
     except FileNotFoundError:
         return {'error': 'Directory not found'}, 404
 
+def delete_file(directory_id, artefact_id):
+    try:
+        # delete file
+        artefact_path = os.path.join(app.config['UPLOAD_FOLDER'], directory_id, artefact_id)
+        if os.path.exists(artefact_path):
+            os.remove(artefact_path)
+            return {'message': f'Artefact {artefact_id} deleted from directory {directory_id}'}, 200
+        else:
+            return {'error': f'Artefact {artefact_id} not found in directory {directory_id}'}, 404
+    except FileNotFoundError:
+        return {'error': 'Directory not found'}, 404
+
 
 @api.route('/hello')    # Declara un nuevo endpoint accesible desde http://127.0.0.1:5000/hello
 class HelloWorld(Resource): # Define una clase que hereda de Resource, representando los métodos HTTP disponibles para este endpoint.
@@ -118,7 +130,7 @@ class Artefacts(Resource):
         return upload_file(directory_id, artefact_id)
 
     def delete(self, directory_id, artefact_id):
-        return 
+        return delete_file(directory_id, artefact_id)
 
     def put(self, directory_id, artefact_id):
         return 
