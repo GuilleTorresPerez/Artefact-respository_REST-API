@@ -1,5 +1,7 @@
 from flask import Flask
 from flask_restx import Api, Resource
+from flask import send_file
+
 
 # Subir archivos
 import os
@@ -66,7 +68,22 @@ class Artefacts(Resource):
 class Artefacts(Resource):
     # returns list of all artefacts from directory
     def get(self, directory_id, artefact_id):
-        return {'GET_artefacts': directory_id, 'artefact_id': artefact_id}
+        # Construir la ruta completa del archivo
+        artefact_path = os.path.join(app.config['UPLOAD_FOLDER'], directory_id, artefact_id)
+
+        # Comprobar si el archivo existe
+        if not os.path.exists(artefact_path):
+            return {'error': f'Artefact {artefact_id} not found in directory {directory_id}'}, 404
+
+        # Leer el archivo (opcionalmente puedes devolver solo detalles)
+        try:
+            with open(artefact_path, 'rb') as f:
+                content = f.read()
+            # Retornar el contenido como binario o una respuesta de ejemplo
+            return send_file(artefact_path, as_attachment=True)
+        except Exception as e:
+            return {'error': f'Failed to read artefact: {str(e)}'}, 500
+
 
     # uploads a new artefact to directory
     def post(self, directory_id, artefact_id):
