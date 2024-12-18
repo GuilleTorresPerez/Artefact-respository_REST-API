@@ -27,22 +27,24 @@ def createDirectory(directory):
 
 
 def upload_file(directory_id, artefact_id):
-    if request.method == 'POST':
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            return {'error': 'No file part'}, 400
+    if request.method == 'PUT':
+        message = {'message': f'File {artefact_id} updated to directory {directory_id}'}
+    else: # POST
+        message = {'message': f'File {artefact_id} uploaded to directory {directory_id}'}
 
-        file = request.files['file']
+    if 'file' not in request.files:
+        return {'error': 'No file part'}, 400
+
+    file = request.files['file']
+    
+    if file.filename == '':
+        return {'error': 'No file selected'}, 400
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        createDirectory(app.config['UPLOAD_FOLDER'] + directory_id)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], directory_id, artefact_id))
+        return message, 200
         
-        if file.filename == '':
-            return {'error': 'No file selected'}, 400
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            createDirectory(app.config['UPLOAD_FOLDER'] + directory_id)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], directory_id, artefact_id))
-            return {'message': f'File {artefact_id} uploaded to directory {directory_id}'}, 201
-        
-    return {'error': 'No file part'}, 400
 
 def delete_directory(directory_id):
     try:
@@ -133,7 +135,9 @@ class Artefacts(Resource):
         return delete_file(directory_id, artefact_id)
 
     def put(self, directory_id, artefact_id):
-        return 
+        return upload_file(directory_id, artefact_id)
+            
+        
 
 if __name__ == '__main__':
     app.run(debug=True)
