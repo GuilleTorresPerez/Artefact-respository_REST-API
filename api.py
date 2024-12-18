@@ -52,8 +52,14 @@ class HelloWorld(Resource): # Define una clase que hereda de Resource, represent
 
 @api.route('/artefacts') 
 class Artefacts(Resource):
+    # returns list of available directories
     def get(self):
-        return {'GET_artefacts': 'artefacts'}
+        try:
+            # directories = [d for d in os.listdir(app.config['UPLOAD_FOLDER'])]
+            directories = os.listdir(app.config['UPLOAD_FOLDER'])
+            return {'directories': directories}, 200  # Devolvemos la lista de directorios
+        except FileNotFoundError:
+            return {'error': 'Upload folder not found'}, 404
 
 # returns list of available directories
 @api.route('/artefacts/<string:directory_id>')
