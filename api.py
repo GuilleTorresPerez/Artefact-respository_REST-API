@@ -9,18 +9,7 @@ from flask import Flask, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
 
 UPLOAD_FOLDER = './artefacts/'
-ALLOWED_EXTENSIONS = {
-    # Imágenes
-    "png", "jpg", "jpeg", "gif", "bmp", "svg", "webp",
-    # Documentos
-    "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "csv", "md",
-    # Código fuente
-    "py", "js", "java", "cpp", "c", "cs", "html", "css", "ts", "json", "xml", "yaml", "yml",
-    # Archivos comprimidos
-    "zip", "rar", "tar", "gz", "7z",
-    # Otros
-    "mp4", "mp3", "wav", "flac", "ogg", "avi", "mkv",
-}
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 app = Flask(__name__) # Se inicializa la aplicación Flask con la clase Flask
 api = Api(app)  # Se crea una instancia de Api y se asocia a la aplicación Flask
