@@ -2,14 +2,18 @@ from flask import Flask
 from flask_restx import Api, Resource
 from flask import send_file
 
-
-# Subir archivos
 import os
 from flask import Flask, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
 
 UPLOAD_FOLDER = './artefacts/'
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {
+    "png", "jpg", "jpeg", "gif", "bmp", "svg", "webp",
+    "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "csv", "md",
+    "py", "js", "java", "cpp", "c", "cs", "html", "css", "ts", "json", "xml", "yaml", "yml",
+    "zip", "rar", "tar", "gz", "7z",
+    "mp4", "mp3", "wav", "flac", "ogg", "avi", "mkv",
+}
 
 app = Flask(__name__) # Se inicializa la aplicación Flask con la clase Flask
 api = Api(app)  # Se crea una instancia de Api y se asocia a la aplicación Flask
@@ -48,7 +52,6 @@ def upload_file(directory_id, artefact_id):
 
 def delete_directory(directory_id):
     try:
-        # delete directory and all its contents
         directory_path = os.path.join(app.config['UPLOAD_FOLDER'], directory_id)
         if os.path.exists(directory_path):
             for root, dirs, files in os.walk(directory_path, topdown=False):
@@ -63,7 +66,6 @@ def delete_directory(directory_id):
 
 def delete_file(directory_id, artefact_id):
     try:
-        # delete file
         artefact_path = os.path.join(app.config['UPLOAD_FOLDER'], directory_id, artefact_id)
         if os.path.exists(artefact_path):
             os.remove(artefact_path)
@@ -81,21 +83,17 @@ class HelloWorld(Resource): # Define una clase que hereda de Resource, represent
 
 @api.route('/artefacts') 
 class Artefacts(Resource):
-    # returns list of available directories
     def get(self):
         try:
-            # directories = [d for d in os.listdir(app.config['UPLOAD_FOLDER'])]
             directories = os.listdir(app.config['UPLOAD_FOLDER'])
             return {'directories': directories}, 200  # Devolvemos la lista de directorios
         except FileNotFoundError:
             return {'error': 'Upload folder not found'}, 404
 
-# returns list of available directories
 @api.route('/artefacts/<string:directory_id>')
 class Artefacts(Resource):
     def get(self, directory_id):
         try:
-            # directories = [d for d in os.listdir(app.config['UPLOAD_FOLDER'])]
             directories = os.listdir(app.config['UPLOAD_FOLDER'] + directory_id)
             return {'artefacts': directories}, 200  # Devolvemos la lista de directorios
         except FileNotFoundError:
@@ -107,28 +105,21 @@ class Artefacts(Resource):
 
 @api.route('/artefacts/<string:directory_id>/<string:artefact_id>')
 class Artefacts(Resource):
-    # returns list of all artefacts from directory
     def get(self, directory_id, artefact_id):
-        # Construir la ruta completa del archivo
         artefact_path = os.path.join(app.config['UPLOAD_FOLDER'], directory_id, artefact_id)
 
-        # Comprobar si el archivo existe
         if not os.path.exists(artefact_path):
             return {'error': f'Artefact {artefact_id} not found in directory {directory_id}'}, 404
 
-        # Leer el archivo (opcionalmente puedes devolver solo detalles)
         try:
             with open(artefact_path, 'rb') as f:
                 content = f.read()
-            # Retornar el contenido como binario o una respuesta de ejemplo
             return send_file(artefact_path, as_attachment=True)
         except Exception as e:
             return {'error': f'Failed to read artefact: {str(e)}'}, 500
 
 
-    # uploads a new artefact to directory
     def post(self, directory_id, artefact_id):
-        # return {'POST_artefacts': directory_id, 'artefact_id': artefact_id}
         return upload_file(directory_id, artefact_id)
 
     def delete(self, directory_id, artefact_id):
